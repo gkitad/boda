@@ -92,6 +92,21 @@
   .mapwrap iframe{ display:block; width:100%; aspect-ratio:16/9; border:0; }
   .maptag{ font-family:"Jost",sans-serif; letter-spacing:.2em; text-transform:uppercase; font-size:9px; color:var(--text-soft); margin-top:13px; padding-left:.2em; }
 
+  /* Venue video gallery */
+  .galleryWrap{ position:relative; margin-top:clamp(34px,6vw,52px); }
+  .gallery{ display:flex; gap:clamp(10px,2vw,18px); overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; padding:2px; scrollbar-width:none; }
+  .gallery::-webkit-scrollbar{ display:none; }
+  .tile{ flex:0 0 auto; width:clamp(210px,62vw,290px); aspect-ratio:9/16; border-radius:4px; overflow:hidden; background:#000; scroll-snap-align:start; border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+  .tile video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .gnav{ display:none; }
+  @media (min-width:760px){
+    .tile{ width:clamp(230px,24vw,300px); }
+    .gnav{ display:flex; align-items:center; justify-content:center; position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; border:1px solid color-mix(in srgb, var(--accent) 30%, transparent); background:color-mix(in srgb, var(--bg) 82%, transparent); color:var(--text); cursor:pointer; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:5; transition:background-color .2s ease; }
+    .gnav:hover{ background:var(--bg); }
+    .gnav svg{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.5; }
+    .gnav.prev{ left:-8px; } .gnav.next{ right:-8px; }
+  }
+
   /* Photos */
   .upload{ margin-top:clamp(32px,6vw,48px); border:1.5px dashed color-mix(in srgb, var(--accent) 50%, transparent); border-radius:6px; padding:clamp(32px,6vw,54px) 20px; cursor:pointer; transition:background-color .25s ease, border-color .25s ease; }
   .upload:hover, .upload.drag{ background:var(--card); border-color:var(--accent); }
@@ -183,6 +198,25 @@
     </div>
   </section>
 
+  <!-- ===== THE VENUE (video gallery) ===== -->
+  <section class="section">
+    <div class="wrap reveal">
+      <p class="kicker">The venue</p>
+      <h2 class="h2">A chapel in the Hill Country</h2>
+      <p class="lede">A glimpse of where we'll say "I do" — a white chapel among the Texas hills, under an open sky. (Venue name and words to come.)</p>
+      <div class="galleryWrap">
+        <button class="gnav prev" id="gPrev" aria-label="Previous video"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="gallery" id="gallery">
+          <div class="tile"><video src="videos/gallery-walkthrough.mp4" poster="videos/gallery-walkthrough.jpg" muted loop playsinline preload="metadata"></video></div>
+          <div class="tile"><video src="videos/gallery-overhead.mp4" poster="videos/gallery-overhead.jpg" muted loop playsinline preload="metadata"></video></div>
+          <div class="tile"><video src="videos/gallery-rear.mp4" poster="videos/gallery-rear.jpg" muted loop playsinline preload="metadata"></video></div>
+          <div class="tile"><video src="videos/gallery-suite.mp4" poster="videos/gallery-suite.jpg" muted loop playsinline preload="metadata"></video></div>
+        </div>
+        <button class="gnav next" id="gNext" aria-label="Next video"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== DETAILS + MAP (ink, like the invitation's black side) ===== -->
   <section class="section ink">
     <div class="wrap reveal">
@@ -192,19 +226,19 @@
       <div class="cards">
         <div class="card">
           <p class="ct">The ceremony</p>
-          <p class="cbig">Time TBD</p>
-          <p class="cd">Venue name<br>Ceremony address</p>
+          <p class="cbig">1:00 PM</p>
+          <p class="cd">644 Ghost Dancer<br>Fischer, TX 78623</p>
         </div>
         <div class="card">
           <p class="ct">The celebration</p>
-          <p class="cbig">Time TBD</p>
-          <p class="cd">Reception name<br>Reception address</p>
+          <p class="cbig">4:00 PM</p>
+          <p class="cd">Reception to follow<br>at the same venue</p>
         </div>
       </div>
       <div class="mapwrap">
-        <iframe src="https://www.google.com/maps?q=Austin,Texas&output=embed" loading="lazy" title="Venue map"></iframe>
+        <iframe src="https://www.google.com/maps?q=644%20Ghost%20Dancer,%20Fischer,%20TX%2078623&output=embed" loading="lazy" title="Venue map"></iframe>
       </div>
-      <p class="maptag">Placeholder map &middot; drops onto the real venue once you share the address</p>
+      <p class="maptag">644 Ghost Dancer &middot; Fischer, TX 78623</p>
     </div>
   </section>
 
@@ -252,12 +286,29 @@
       var io=new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } }); },{ threshold:.16 });
       els.forEach(function(e){ io.observe(e); }); })();
 
-    (function(){ var target=new Date('2027-03-21T16:00:00').getTime();
+    (function(){ var target=new Date('2027-03-21T13:00:00').getTime();
       var d=document.getElementById('cD'), h=document.getElementById('cH'), m=document.getElementById('cM'), s=document.getElementById('cS');
       function tick(){ var diff=target-Date.now(); if(diff<0) diff=0;
         var dd=Math.floor(diff/86400000), hh=Math.floor((diff%86400000)/3600000), mm=Math.floor((diff%3600000)/60000), ss=Math.floor((diff%60000)/1000);
         if(d)d.textContent=dd; if(h)h.textContent=hh; if(m)m.textContent=mm; if(s)s.textContent=ss; }
       tick(); setInterval(tick,1000); })();
+
+    // Venue video gallery: play while in view, pause off-screen; arrows scroll
+    (function(){ var gal=document.getElementById('gallery'); if(!gal) return;
+      var vids=gal.querySelectorAll('video');
+      vids.forEach(function(v){ v.muted=true; });
+      function playAll(){ vids.forEach(function(v){ var p=v.play(); if(p&&p.catch) p.catch(function(){}); }); }
+      function pauseAll(){ vids.forEach(function(v){ v.pause(); }); }
+      if('IntersectionObserver' in window){
+        var io=new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting) playAll(); else pauseAll(); }); },{ threshold:.1 });
+        io.observe(gal);
+      } else { playAll(); }
+      function step(dir){ var tile=gal.querySelector('.tile'); if(!tile) return;
+        var w=tile.getBoundingClientRect().width+16; gal.scrollBy({left:dir*w, behavior:'smooth'}); }
+      var prev=document.getElementById('gPrev'), next=document.getElementById('gNext');
+      if(prev) prev.addEventListener('click', function(){ step(-1); });
+      if(next) next.addEventListener('click', function(){ step(1); });
+    })();
 
     (function(){ var drop=document.getElementById('drop'), input=document.getElementById('fileInput'), grid=document.getElementById('previews');
       if(!drop||!input) return;
