@@ -31,6 +31,20 @@
   .sw.is-active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent); }
   .sw:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
+  /* ===== Sound toggle ===== */
+  .sound{ position:fixed; z-index:21; right:16px; bottom:16px; width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; gap:3px; padding:0; cursor:pointer; background:color-mix(in srgb, var(--bg) 80%, transparent); border:1px solid color-mix(in srgb, var(--accent) 24%, transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:0 6px 20px rgba(0,0,0,.14); transition:background-color .2s ease, opacity .2s ease; }
+  .sound .bar{ width:3px; height:8px; background:var(--accent); border-radius:2px; }
+  .sound.playing .bar{ animation:eq .95s ease-in-out infinite; }
+  .sound.playing .bar:nth-child(2){ animation-delay:.18s; }
+  .sound.playing .bar:nth-child(3){ animation-delay:.36s; }
+  .sound.playing .bar:nth-child(4){ animation-delay:.12s; }
+  @keyframes eq{ 0%,100%{ height:6px; } 50%{ height:17px; } }
+  .sound.idle{ animation:soundPulse 2.4s ease-in-out infinite; }
+  @keyframes soundPulse{ 0%,100%{ box-shadow:0 6px 20px rgba(0,0,0,.14), 0 0 0 0 color-mix(in srgb, var(--accent) 28%, transparent); } 50%{ box-shadow:0 6px 20px rgba(0,0,0,.14), 0 0 0 7px transparent; } }
+  .sound.off{ opacity:.55; }
+  .sound.off::after{ content:""; position:absolute; width:26px; height:1.4px; background:var(--accent); transform:rotate(-45deg); border-radius:2px; }
+  .sound:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+
   /* ===== Hero ===== */
   .stage{ position:relative; width:100%; min-height:100svh; display:flex; align-items:center; justify-content:center; padding:clamp(20px,6vw,64px); background:radial-gradient(120% 90% at 50% 10%, var(--bg2) 0%, var(--bg) 52%, var(--deep) 100%); overflow:hidden; }
   .stage::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(130% 100% at 50% 42%, transparent 58%, var(--vignette) 100%); }
@@ -142,6 +156,11 @@
 </head>
 <body data-theme="ivory">
   <div class="grain"></div>
+
+  <audio id="bgm" src="audio/song.mp3" loop preload="none"></audio>
+  <button class="sound idle" id="soundBtn" aria-label="Play music" aria-pressed="false">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
 
   <div class="palette" role="group" aria-label="Choose a color palette">
     <span class="lbl" id="pName">Ivory</span>
@@ -320,6 +339,39 @@
       ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('drag'); }); });
       ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('drag'); }); });
       drop.addEventListener('drop', function(e){ if(e.dataTransfer&&e.dataTransfer.files) render(e.dataTransfer.files); });
+    })();
+
+    // Background music: browsers block autoplay with sound, so we start on the
+    // first interaction (tap/scroll) with a gentle fade-in. Toggle button always available.
+    (function(){
+      var audio=document.getElementById('bgm'), btn=document.getElementById('soundBtn');
+      if(!audio||!btn) return;
+      var TARGET=0.55, started=false, userOff=false, fadeId=null;
+      function fadeTo(vol, done){ if(fadeId) clearInterval(fadeId);
+        fadeId=setInterval(function(){ var d=vol-audio.volume;
+          if(Math.abs(d)<0.03){ audio.volume=vol; clearInterval(fadeId); fadeId=null; if(done) done(); return; }
+          audio.volume=Math.max(0,Math.min(1,audio.volume+(d>0?0.03:-0.03))); },55); }
+      function play(){ audio.volume=0;
+        var p=audio.play();
+        if(p&&p.then){ p.then(function(){ started=true; setState('playing'); fadeTo(TARGET); }).catch(function(){ setState('idle'); }); }
+        else { started=true; setState('playing'); fadeTo(TARGET); } }
+      function stop(){ fadeTo(0, function(){ audio.pause(); }); }
+      function setState(s){ btn.classList.remove('idle','playing','off');
+        if(s==='playing'){ btn.classList.add('playing'); btn.setAttribute('aria-pressed','true'); btn.setAttribute('aria-label','Pause music'); }
+        else if(s==='off'){ btn.classList.add('off'); btn.setAttribute('aria-pressed','false'); btn.setAttribute('aria-label','Play music'); }
+        else { btn.classList.add('idle'); btn.setAttribute('aria-pressed','false'); btn.setAttribute('aria-label','Play music'); } }
+      // Try once on load (usually blocked -> stays 'idle')
+      play();
+      // Start on first user interaction if they haven't turned it off
+      function firstInteract(e){ if(started||userOff) return;
+        if(e && e.target && e.target.closest && e.target.closest('#soundBtn')) return;
+        play(); }
+      ['pointerdown','touchstart','keydown','wheel'].forEach(function(ev){
+        window.addEventListener(ev, firstInteract, { once:true, passive:true }); });
+      // Button toggles
+      btn.addEventListener('click', function(e){ e.stopPropagation();
+        if(audio.paused){ userOff=false; play(); }
+        else { userOff=true; setState('off'); stop(); } });
     })();
   </script>
 </body>
