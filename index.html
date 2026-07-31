@@ -135,7 +135,11 @@
   .up-title{ font-weight:400; font-size:clamp(17px,3vw,22px); color:var(--text); }
   .up-note{ font-family:"Jost",sans-serif; letter-spacing:.1em; text-transform:uppercase; font-size:9px; color:var(--text-soft); margin-top:11px; }
   .previews{ display:grid; grid-template-columns:repeat(auto-fill, minmax(78px,1fr)); gap:9px; margin-top:20px; }
-  .previews img{ width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px; border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); }
+  .previews .pv{ position:relative; }
+  .previews .pv img{ width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px; border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); opacity:.45; transition:opacity .35s ease; display:block; }
+  .previews .pv.done img{ opacity:1; }
+  .previews .pv .badge{ position:absolute; right:5px; bottom:5px; width:18px; height:18px; border-radius:50%; background:var(--accent); color:var(--bg); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; opacity:0; transition:opacity .3s ease; }
+  .previews .pv.done .badge{ opacity:1; }
 
   .cta{ display:inline-block; margin-top:clamp(28px,5vw,42px); font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.24em; text-transform:uppercase; font-size:12px; color:var(--text); text-decoration:none; padding:15px 32px; border:1px solid var(--accent); border-radius:999px; transition:background-color .3s ease, color .3s ease; padding-left:calc(32px + .24em); }
   .cta:hover{ background:var(--accent); color:var(--bg); }
@@ -358,12 +362,19 @@
       <p class="kicker" data-es="Comparte los momentos">Share the moments</p>
       <h2 class="h2" data-es="Ayúdanos a capturar el día">Help us capture the day</h2>
       <p class="lede" data-es="¿Tomaste una buena foto? Súbela aquí para revivir juntos cada momento — incluso los que el fotógrafo no vio.">Snapped something beautiful? Add your photos here so we can relive every moment together — the ones the photographer never saw.</p>
+      <div class="form" id="photoName">
+        <div class="field">
+          <label data-es="Tu nombre (opcional)">Your name (optional)</label>
+          <input type="text" name="upname" placeholder="Your name" data-es-ph="Tu nombre">
+        </div>
+      </div>
       <div class="upload" id="drop" role="button" tabindex="0" aria-label="Upload photos">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
         <p class="up-title" data-es="Arrastra tus fotos o toca para subir">Drag your photos here or tap to upload</p>
-        <p class="up-note" data-es="Solo vista previa por ahora — lo conectaremos a la galería compartida">Preview only for now — we'll connect this to the shared gallery</p>
+        <p class="up-note" data-es="Se guardan en la nube de Anthony y Lily">Saved straight to Anthony &amp; Lily's cloud</p>
         <input type="file" id="fileInput" accept="image/*" multiple hidden>
       </div>
+      <p class="formMsg" id="photoMsg" hidden data-es="¡Gracias por compartir tus fotos!">Thanks for sharing your photos!</p>
       <div class="previews" id="previews"></div>
     </div>
   </section>
@@ -410,16 +421,47 @@
       if(next) next.addEventListener('click', function(){ step(1); });
     })();
 
-    (function(){ var drop=document.getElementById('drop'), input=document.getElementById('fileInput'), grid=document.getElementById('previews');
+    (function(){
+      var PHOTO_ENDPOINT='https://script.google.com/macros/s/AKfycbwBizvNvGicbKdizgbRydngvbH2ksRcNjUMZpz5oQa8f7YgUgMdPAVWel0Dcc5nUl-i/exec';
+      var drop=document.getElementById('drop'), input=document.getElementById('fileInput'), grid=document.getElementById('previews');
+      var nameEl=document.querySelector('#photoName input'), msg=document.getElementById('photoMsg');
       if(!drop||!input) return;
-      function render(files){ Array.prototype.forEach.call(files, function(f){ if(!f.type || f.type.indexOf('image/')!==0) return;
-        var img=document.createElement('img'); img.src=URL.createObjectURL(f); img.alt=f.name; grid.appendChild(img); }); }
+      function send(url, data){ if(!url) return Promise.resolve();
+        return fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:new URLSearchParams(data).toString() }); }
+
+      // Resize/compress in the browser so uploads are small and fast on mobile
+      function compress(file){ return new Promise(function(resolve){
+        var url=URL.createObjectURL(file), img=new Image();
+        img.onload=function(){ var max=1920, w=img.width, h=img.height, s=Math.min(1, max/Math.max(w,h));
+          var cw=Math.round(w*s), ch=Math.round(h*s);
+          var c=document.createElement('canvas'); c.width=cw; c.height=ch;
+          c.getContext('2d').drawImage(img,0,0,cw,ch); URL.revokeObjectURL(url);
+          c.toBlob(function(b){ resolve(b||file); }, 'image/jpeg', 0.85); };
+        img.onerror=function(){ URL.revokeObjectURL(url); resolve(file); };
+        img.src=url; }); }
+      function toB64(blob){ return new Promise(function(res){ var r=new FileReader();
+        r.onload=function(){ res(String(r.result).split(',')[1]); }; r.readAsDataURL(blob); }); }
+
+      function handle(files){
+        var imgs=Array.prototype.filter.call(files, function(f){ return f.type && f.type.indexOf('image/')===0; });
+        if(!imgs.length) return;
+        imgs.forEach(function(f){
+          var pv=document.createElement('div'); pv.className='pv';
+          var im=document.createElement('img'); im.src=URL.createObjectURL(f); im.alt=f.name;
+          var bd=document.createElement('span'); bd.className='badge'; bd.textContent='\u2713';
+          pv.appendChild(im); pv.appendChild(bd); grid.appendChild(pv);
+          compress(f).then(toB64).then(function(b64){
+            return send(PHOTO_ENDPOINT, { type:'photo', name:(nameEl?nameEl.value.trim():''), filename:(f.name||('foto_'+Date.now()+'.jpg')), mime:'image/jpeg', data:b64, ts:new Date().toISOString() });
+          }).then(function(){ pv.classList.add('done'); if(msg) msg.hidden=false; })
+            .catch(function(){ pv.classList.add('done'); });
+        });
+      }
       drop.addEventListener('click', function(){ input.click(); });
       drop.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); } });
-      input.addEventListener('change', function(){ render(input.files); });
+      input.addEventListener('change', function(){ handle(input.files); input.value=''; });
       ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('drag'); }); });
       ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('drag'); }); });
-      drop.addEventListener('drop', function(e){ if(e.dataTransfer&&e.dataTransfer.files) render(e.dataTransfer.files); });
+      drop.addEventListener('drop', function(e){ if(e.dataTransfer&&e.dataTransfer.files) handle(e.dataTransfer.files); });
     })();
 
     // Background music: browsers block autoplay with sound, so we start on the
