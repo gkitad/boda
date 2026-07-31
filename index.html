@@ -88,6 +88,21 @@
   .rule .l.r{ background:linear-gradient(90deg,var(--accent),transparent); }
   .rule .m{ color:var(--accent2); font-size:11px; }
 
+  /* Featured message (the emotional note near the top) */
+  .message{ padding-top:clamp(96px,17vw,190px); padding-bottom:clamp(96px,17vw,190px); }
+  .message .mline{ display:block; width:1px; height:clamp(42px,7vw,66px); background:color-mix(in srgb, var(--accent) 55%, transparent); margin:0 auto clamp(30px,5vw,46px); opacity:0; transform:scaleY(0); transform-origin:top; transition:opacity 1s ease, transform 1.3s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in .mline{ opacity:1; transform:scaleY(1); }
+  .message .quote{ max-width:26ch; margin:0 auto; }
+  .message .qline{ font-family:"Cormorant Garamond", Georgia, serif; font-weight:300; font-style:italic; font-size:clamp(23px,4.6vw,42px); line-height:1.4; letter-spacing:.005em; color:var(--text); opacity:0; transform:translateY(18px); transition:opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .message .qline + .qline{ margin-top:clamp(16px,2.6vw,24px); }
+  .reveal.in .qline{ opacity:1; transform:none; }
+  .reveal.in .qline:nth-of-type(1){ transition-delay:.25s; }
+  .reveal.in .qline:nth-of-type(2){ transition-delay:.85s; }
+  .message .sign{ margin-top:clamp(42px,7vw,66px); opacity:0; transform:translateY(14px); transition:opacity 1.2s ease 1.5s, transform 1.2s cubic-bezier(.2,.7,.2,1) 1.5s; }
+  .reveal.in .sign{ opacity:1; transform:none; }
+  .message .sign .sline{ width:clamp(32px,8vw,56px); height:1px; background:color-mix(in srgb, var(--accent) 50%, transparent); margin:0 auto clamp(16px,3vw,22px); }
+  .message .sign .sname{ font-family:"Pinyon Script", cursive; font-weight:400; font-size:clamp(32px,6.5vw,54px); line-height:1; color:var(--accent-bright); }
+
   /* Countdown */
   .count{ display:flex; justify-content:center; gap:clamp(14px,5vw,48px); margin-top:clamp(28px,5vw,44px); }
   .count .unit{ min-width:46px; }
@@ -108,6 +123,8 @@
   .card .ct{ font-family:"Jost",sans-serif; letter-spacing:.24em; text-transform:uppercase; font-size:10px; color:var(--accent); padding-left:.24em; }
   .card .cbig{ font-weight:300; font-size:clamp(22px,3.4vw,30px); margin:13px 0 6px; }
   .card .cd{ font-size:15px; line-height:1.6; color:var(--text-soft); }
+  .card--wide{ grid-column:1 / -1; }
+  .card--wide .cd{ max-width:60ch; margin:0 auto; }
   @media (max-width:560px){ .cards{ grid-template-columns:1fr; } }
   .mapwrap{ margin-top:clamp(28px,5vw,44px); border:1px solid color-mix(in srgb, var(--accent) 26%, transparent); border-radius:3px; overflow:hidden; }
   .mapwrap iframe{ display:block; width:100%; aspect-ratio:16/9; border:0; }
@@ -183,6 +200,7 @@
     .arch path{ animation:none; stroke-dashoffset:0; }
     .rise{ animation:none; opacity:1; transform:none; }
     .reveal{ opacity:1; transform:none; transition:none; }
+    .message .mline, .message .qline, .message .sign{ opacity:1; transform:none; transition:none; }
     .scroll{ animation:none; opacity:1; }
     .chev{ animation:none; }
   }
@@ -226,6 +244,21 @@
       </div>
     </div>
     <div class="scroll"><span data-es="Desliza">Scroll</span><i class="chev"></i></div>
+  </section>
+
+  <!-- ===== MESSAGE (the emotional note) ===== -->
+  <section class="section ink message">
+    <div class="wrap reveal">
+      <span class="mline"></span>
+      <div class="quote">
+        <p class="qline" data-es="Si estás aquí, es porque eres importante para nosotros.">If you're here, it's because you matter deeply to us.</p>
+        <p class="qline" data-es="Y esperamos que puedas acompañarnos en uno de los días más importantes de nuestras vidas.">And we hope you'll be with us on one of the most important days of our lives.</p>
+      </div>
+      <div class="sign">
+        <span class="sline"></span>
+        <p class="sname">Anthony &amp; Lily</p>
+      </div>
+    </div>
   </section>
 
   <!-- ===== COUNTDOWN ===== -->
@@ -290,7 +323,12 @@
         <div class="card">
           <p class="ct" data-es="La celebración">The celebration</p>
           <p class="cbig">4:00 PM</p>
-          <p class="cd" data-es="Recepción a continuación<br>en el mismo lugar">Reception to follow<br>at the same venue</p>
+          <p class="cd" data-es="Aún está pendiente">Still to be confirmed</p>
+        </div>
+        <div class="card card--wide">
+          <p class="ct" data-es="Clima y vestimenta">Weather &amp; attire</p>
+          <p class="cbig" data-es="Cálido y soleado">Warm &amp; sunny</p>
+          <p class="cd" data-es="A finales de marzo, el Hill Country de Texas suele estar cálido y soleado — alrededor de 24–30 °C de día, y más fresco al caer la tarde. Sugerimos vestimenta ligera y elegante, y una chaqueta ligera para la noche.">In late March, the Texas Hill Country is usually warm and sunny — around the mid-70s to upper-80s °F by day, and cooler after sunset. We suggest light, elegant attire, and a light layer for the evening.</p>
         </div>
       </div>
       <div class="mapwrap">
