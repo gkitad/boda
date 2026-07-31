@@ -510,6 +510,29 @@
           d.appendChild(p); d.appendChild(n); list.insertBefore(d, list.firstChild); }
         gb.reset(); show(document.getElementById('gbMsg')); });
       }
+
+      // Load & display all guestbook messages from the sheet (JSONP avoids CORS)
+      function renderMessages(data){
+        if(!list) return; list.innerHTML='';
+        if(!data || !data.length) return;
+        data.slice().reverse().forEach(function(m){
+          if(!m || !m.message) return;
+          var d=document.createElement('div'); d.className='msg';
+          var p=document.createElement('p'); p.className='mtext'; p.textContent='\u201C'+String(m.message)+'\u201D';
+          var n=document.createElement('p'); n.className='mname'; n.textContent='\u2014 '+String(m.name||'');
+          d.appendChild(p); d.appendChild(n); list.appendChild(d);
+        });
+      }
+      function loadGuestbook(){
+        if(!GUESTBOOK_ENDPOINT) return;
+        var cb='__gb_'+Date.now(); var sc=document.createElement('script');
+        function cleanup(){ try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(sc.parentNode) sc.parentNode.removeChild(sc); }
+        window[cb]=function(data){ renderMessages(data); cleanup(); };
+        sc.onerror=cleanup;
+        sc.src=GUESTBOOK_ENDPOINT+'?callback='+cb+'&t='+Date.now();
+        document.body.appendChild(sc);
+      }
+      loadGuestbook();
     })();
   </script>
 </body>
