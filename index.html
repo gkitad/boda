@@ -465,38 +465,45 @@
     })();
 
     // Background music: browsers block autoplay with sound, so we start on the
-    // first interaction (tap/scroll) with a gentle fade-in. Toggle button always available.
+    // first interaction (tap/scroll) with a gentle fade-in. Pausing is instant and reliable.
     (function(){
       var audio=document.getElementById('bgm'), btn=document.getElementById('soundBtn');
       if(!audio||!btn) return;
       var TARGET=0.55, started=false, userOff=false, fadeId=null;
-      function fadeTo(vol, done){ if(fadeId) clearInterval(fadeId);
-        fadeId=setInterval(function(){ var d=vol-audio.volume;
-          if(Math.abs(d)<0.03){ audio.volume=vol; clearInterval(fadeId); fadeId=null; if(done) done(); return; }
-          audio.volume=Math.max(0,Math.min(1,audio.volume+(d>0?0.03:-0.03))); },55); }
-      function play(){ audio.volume=0;
+
+      function clearFade(){ if(fadeId){ clearInterval(fadeId); fadeId=null; } }
+      function fadeIn(){ clearFade(); audio.volume=0;
+        fadeId=setInterval(function(){ var v=audio.volume+0.04;
+          if(v>=TARGET){ audio.volume=TARGET; clearFade(); } else { audio.volume=v; } }, 60); }
+      function play(){ clearFade();
         var p=audio.play();
-        if(p&&p.then){ p.then(function(){ started=true; setState('playing'); fadeTo(TARGET); }).catch(function(){ setState('idle'); }); }
-        else { started=true; setState('playing'); fadeTo(TARGET); } }
-      function stop(){ fadeTo(0, function(){ audio.pause(); }); }
+        if(p&&p.then){ p.then(function(){ started=true; setState('playing'); fadeIn(); }).catch(function(){ setState('idle'); }); }
+        else { started=true; setState('playing'); fadeIn(); } }
+      function pause(){ clearFade(); audio.pause(); }   // instant — no timer, always stops
+
       function setState(s){ btn.classList.remove('idle','playing','off');
         if(s==='playing'){ btn.classList.add('playing'); btn.setAttribute('aria-pressed','true'); btn.setAttribute('aria-label','Pause music'); }
         else if(s==='off'){ btn.classList.add('off'); btn.setAttribute('aria-pressed','false'); btn.setAttribute('aria-label','Play music'); }
         else { btn.classList.add('idle'); btn.setAttribute('aria-pressed','false'); btn.setAttribute('aria-label','Play music'); } }
-      // Try once on load (usually blocked -> stays 'idle')
-      play();
-      // Start on first user interaction if they haven't turned it off
+
+      play(); // usually blocked on mobile -> stays idle until first interaction
+
       function firstInteract(e){ if(started||userOff) return;
         if(e && e.target && e.target.closest && e.target.closest('#soundBtn')) return;
         play(); }
       ['pointerdown','touchstart','keydown','wheel'].forEach(function(ev){
         window.addEventListener(ev, firstInteract, { once:true, passive:true }); });
-      // Button toggles
+
       btn.addEventListener('click', function(e){ e.stopPropagation();
         if(audio.paused){ userOff=false; play(); }
-        else { userOff=true; setState('off'); stop(); } });
-      // Stop playback when the tab is hidden / phone locked / browser closed
-      document.addEventListener('visibilitychange', function(){ if(document.hidden){ audio.pause(); setState('idle'); } });
+        else { userOff=true; setState('off'); pause(); } });
+
+      // Stop the moment the page is hidden / phone locked / app switched / tab closed
+      function bgStop(){ if(!audio.paused){ pause(); if(!userOff) setState('idle'); } }
+      document.addEventListener('visibilitychange', function(){ if(document.hidden) bgStop(); });
+      window.addEventListener('pagehide', bgStop);
+      window.addEventListener('blur', bgStop);
+      audio.addEventListener('ended', function(){ setState(userOff ? 'off' : 'idle'); });
     })();
 
     // Language toggle (EN / ES). Detects browser language on load.
