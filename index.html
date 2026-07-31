@@ -71,7 +71,8 @@
   .date{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.32em; text-transform:uppercase; font-size:clamp(10px,2.9vw,14px); color:var(--text); }
   .place{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.2em; text-transform:uppercase; font-size:clamp(9px,2.2vw,11px); color:var(--text-soft); margin-top:11px; }
 
-  .scroll{ position:absolute; z-index:4; bottom:clamp(16px,4vh,30px); left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-soft); }
+  .scroll{ position:absolute; z-index:4; bottom:clamp(16px,4vh,30px); left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-soft); opacity:0; animation:scrollIn 1.2s cubic-bezier(.2,.7,.2,1) 3.6s forwards; }
+  @keyframes scrollIn{ from{ opacity:0; transform:translateX(-50%) translateY(16px); } to{ opacity:1; transform:translateX(-50%) translateY(0); } }
   .scroll span{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.3em; text-transform:uppercase; font-size:9px; }
   .scroll .chev{ width:13px; height:13px; border-right:1px solid var(--accent); border-bottom:1px solid var(--accent); transform:rotate(45deg); animation:bob 2.2s ease-in-out infinite; }
   @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(45deg); opacity:.45;} 50%{ transform:translateY(6px) rotate(45deg); opacity:1;} }
@@ -139,6 +140,25 @@
   .cta{ display:inline-block; margin-top:clamp(28px,5vw,42px); font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.24em; text-transform:uppercase; font-size:12px; color:var(--text); text-decoration:none; padding:15px 32px; border:1px solid var(--accent); border-radius:999px; transition:background-color .3s ease, color .3s ease; padding-left:calc(32px + .24em); }
   .cta:hover{ background:var(--accent); color:var(--bg); }
 
+  /* Forms (RSVP + guestbook) */
+  .form{ max-width:440px; margin:clamp(30px,5vw,44px) auto 0; text-align:left; display:flex; flex-direction:column; gap:20px; }
+  .field{ display:flex; flex-direction:column; gap:9px; }
+  .field label{ font-family:"Jost",sans-serif; font-weight:400; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--text-soft); }
+  .field input, .field textarea{ font-family:"Cormorant Garamond", Georgia, serif; font-size:18px; color:var(--text); background:transparent; border:0; border-bottom:1px solid color-mix(in srgb, var(--accent) 32%, transparent); padding:9px 2px; transition:border-color .2s ease; -webkit-appearance:none; border-radius:0; }
+  .field textarea{ border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); border-radius:5px; padding:12px; min-height:104px; resize:vertical; line-height:1.5; }
+  .field input:focus, .field textarea:focus{ outline:none; border-color:var(--accent); }
+  .field input::placeholder, .field textarea::placeholder{ color:color-mix(in srgb, var(--text-soft) 70%, transparent); }
+  .seg{ display:flex; gap:10px; }
+  .seg button{ flex:1; font-family:"Jost",sans-serif; font-weight:400; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--text); background:transparent; border:1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius:999px; padding:13px; cursor:pointer; transition:background-color .2s ease, color .2s ease, border-color .2s ease; }
+  .seg button.sel{ background:var(--accent); color:var(--bg); border-color:var(--accent); }
+  .btn{ align-self:center; margin-top:6px; font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.24em; text-transform:uppercase; font-size:12px; color:var(--bg); background:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:15px 34px; cursor:pointer; transition:opacity .2s ease; padding-left:calc(34px + .24em); }
+  .btn:hover{ opacity:.85; }
+  .formMsg{ text-align:center; font-size:17px; color:var(--accent); margin-top:4px; font-style:italic; }
+  .msgs{ max-width:520px; margin:clamp(30px,5vw,44px) auto 0; text-align:left; display:flex; flex-direction:column; gap:20px; }
+  .msg{ border-left:2px solid color-mix(in srgb, var(--accent) 40%, transparent); padding:2px 0 2px 16px; }
+  .msg .mtext{ font-size:18px; line-height:1.55; color:var(--text); font-style:italic; }
+  .msg .mname{ font-family:"Jost",sans-serif; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-soft); margin-top:8px; }
+
   .foot{ text-align:center; padding:clamp(56px,9vw,96px) 22px clamp(40px,6vw,64px); }
   .foot .fn{ font-family:"Pinyon Script", cursive; font-weight:400; font-size:clamp(38px,8vw,64px); color:var(--text); line-height:1; }
   .foot .fh{ font-family:"Jost",sans-serif; letter-spacing:.3em; text-transform:uppercase; font-size:10px; color:var(--accent); margin-top:16px; padding-left:.3em; }
@@ -156,6 +176,7 @@
     .arch path{ animation:none; stroke-dashoffset:0; }
     .rise{ animation:none; opacity:1; transform:none; }
     .reveal{ opacity:1; transform:none; transition:none; }
+    .scroll{ animation:none; opacity:1; }
     .chev{ animation:none; }
   }
 </style>
@@ -197,7 +218,7 @@
         <p class="place rise d7">Austin &middot; Texas</p>
       </div>
     </div>
-    <div class="scroll rise d8"><span data-es="Desliza">Scroll</span><i class="chev"></i></div>
+    <div class="scroll"><span data-es="Desliza">Scroll</span><i class="chev"></i></div>
   </section>
 
   <!-- ===== COUNTDOWN ===== -->
@@ -294,7 +315,48 @@
       <p class="kicker" data-es="Confirmación">RSVP</p>
       <h2 class="h2" data-es="Nos encantaría celebrar contigo">We'd love to celebrate with you</h2>
       <p class="lede" data-es="Por favor confírmanos antes del 1 de febrero de 2027 para reservar tu lugar.">Please let us know by February 1, 2027 so we can save your seat.</p>
-      <a class="cta" href="#" data-es="Confirmar asistencia">Confirm attendance</a>
+      <form class="form" id="rsvpForm" novalidate>
+        <div class="field">
+          <label data-es="Nombre">Name</label>
+          <input type="text" name="name" required autocomplete="name" placeholder="Your name" data-es-ph="Tu nombre">
+        </div>
+        <div class="field">
+          <label data-es="¿Asistirás?">Will you attend?</label>
+          <div class="seg" id="attendSeg" role="group">
+            <button type="button" data-val="yes" data-es="Sí">Yes</button>
+            <button type="button" data-val="no" data-es="No">No</button>
+          </div>
+          <input type="hidden" name="attending" id="attendInput">
+        </div>
+        <div class="field">
+          <label data-es="Número de invitados">Number of guests</label>
+          <input type="number" name="guests" min="1" max="12" value="1" inputmode="numeric">
+        </div>
+        <button type="submit" class="btn" data-es="Confirmar asistencia">Confirm attendance</button>
+        <p class="formMsg" id="rsvpMsg" hidden data-es="¡Gracias! Recibimos tu confirmación.">Thank you! Your RSVP has been received.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== GUESTBOOK ===== -->
+  <section class="section" id="guestbook">
+    <div class="wrap reveal">
+      <p class="kicker" data-es="Recuerdos">Guestbook</p>
+      <h2 class="h2" data-es="Deja un mensaje para Anthony y Lily">Leave a message for Anthony &amp; Lily</h2>
+      <p class="lede" data-es="Escríbeles unas palabras de recuerdo — las guardaremos para siempre.">Write them a few words to remember this day by — we'll keep them forever.</p>
+      <form class="form" id="gbForm" novalidate>
+        <div class="field">
+          <label data-es="Tu nombre">Your name</label>
+          <input type="text" name="gbname" required placeholder="Your name" data-es-ph="Tu nombre">
+        </div>
+        <div class="field">
+          <label data-es="Tu mensaje">Your message</label>
+          <textarea name="gbmsg" required rows="3" placeholder="Write your message..." data-es-ph="Escribe tu mensaje..."></textarea>
+        </div>
+        <button type="submit" class="btn" data-es="Enviar mensaje">Send message</button>
+        <p class="formMsg" id="gbMsg" hidden data-es="¡Gracias por tu mensaje!">Thank you for your message!</p>
+      </form>
+      <div class="msgs" id="msgList"></div>
     </div>
   </section>
 
@@ -389,15 +451,59 @@
     (function(){
       var nodes=document.querySelectorAll('[data-es]');
       nodes.forEach(function(el){ el.dataset.en=el.innerHTML; });
+      var phNodes=document.querySelectorAll('[data-es-ph]');
+      phNodes.forEach(function(el){ el.dataset.enPh=el.getAttribute('placeholder')||''; });
       var btns=document.querySelectorAll('.lang button');
       function setLang(lang){
         nodes.forEach(function(el){ var v=(lang==='es')?el.dataset.es:el.dataset.en; if(v!=null) el.innerHTML=v; });
+        phNodes.forEach(function(el){ el.setAttribute('placeholder', (lang==='es')?el.dataset.esPh:el.dataset.enPh); });
         document.documentElement.setAttribute('lang', lang);
         btns.forEach(function(b){ b.classList.toggle('is-active', b.getAttribute('data-lang')===lang); });
       }
       btns.forEach(function(b){ b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); }); });
       var initial=((navigator.language||'en').toLowerCase().indexOf('es')===0)?'es':'en';
       setLang(initial);
+    })();
+
+    // RSVP + Guestbook forms.
+    // To go live, paste your endpoint URLs below (Google Apps Script or Formspree).
+    (function(){
+      var RSVP_ENDPOINT='';       // <-- paste RSVP endpoint here
+      var GUESTBOOK_ENDPOINT='';  // <-- paste guestbook endpoint here
+
+      function send(url, data){
+        if(!url) return Promise.resolve();
+        return fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:new URLSearchParams(data).toString() }).catch(function(){});
+      }
+      function show(el){ if(el){ el.hidden=false; } }
+
+      // Attending Yes/No toggle
+      var seg=document.getElementById('attendSeg'), attendInput=document.getElementById('attendInput');
+      if(seg){ seg.querySelectorAll('button').forEach(function(b){ b.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(x){ x.classList.remove('sel'); });
+        b.classList.add('sel'); if(attendInput) attendInput.value=b.getAttribute('data-val'); }); }); }
+
+      // RSVP submit
+      var rsvp=document.getElementById('rsvpForm');
+      if(rsvp){ rsvp.addEventListener('submit', function(e){ e.preventDefault();
+        var data={ name:rsvp.elements['name'].value.trim(), attending:(attendInput?attendInput.value:''), guests:rsvp.elements['guests'].value, type:'rsvp', ts:new Date().toISOString() };
+        if(!data.name || !data.attending) return;
+        send(RSVP_ENDPOINT, data);
+        show(document.getElementById('rsvpMsg')); rsvp.querySelector('.btn').style.display='none'; });
+      }
+
+      // Guestbook submit
+      var gb=document.getElementById('gbForm'), list=document.getElementById('msgList');
+      if(gb){ gb.addEventListener('submit', function(e){ e.preventDefault();
+        var nm=gb.elements['gbname'].value.trim(), tx=gb.elements['gbmsg'].value.trim();
+        if(!nm || !tx) return;
+        send(GUESTBOOK_ENDPOINT, { name:nm, message:tx, type:'guestbook', ts:new Date().toISOString() });
+        if(list){ var d=document.createElement('div'); d.className='msg';
+          var p=document.createElement('p'); p.className='mtext'; p.textContent='"'+tx+'"';
+          var n=document.createElement('p'); n.className='mname'; n.textContent='— '+nm;
+          d.appendChild(p); d.appendChild(n); list.insertBefore(d, list.firstChild); }
+        gb.reset(); show(document.getElementById('gbMsg')); });
+      }
     })();
   </script>
 </body>
