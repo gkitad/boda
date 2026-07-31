@@ -184,7 +184,7 @@
 <body data-theme="ivory">
   <div class="grain"></div>
 
-  <audio id="bgm" src="audio/song.mp3" loop preload="none"></audio>
+  <audio id="bgm" src="audio/song.mp3" preload="none"></audio>
   <button class="sound idle" id="soundBtn" aria-label="Play music" aria-pressed="false">
     <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
   </button>
@@ -293,22 +293,6 @@
     </div>
   </section>
 
-  <!-- ===== SHARE PHOTOS ===== -->
-  <section class="section">
-    <div class="wrap reveal">
-      <p class="kicker" data-es="Comparte los momentos">Share the moments</p>
-      <h2 class="h2" data-es="Ayúdanos a capturar el día">Help us capture the day</h2>
-      <p class="lede" data-es="¿Tomaste una buena foto? Súbela aquí para revivir juntos cada momento — incluso los que el fotógrafo no vio.">Snapped something beautiful? Add your photos here so we can relive every moment together — the ones the photographer never saw.</p>
-      <div class="upload" id="drop" role="button" tabindex="0" aria-label="Upload photos">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-        <p class="up-title" data-es="Arrastra tus fotos o toca para subir">Drag your photos here or tap to upload</p>
-        <p class="up-note" data-es="Solo vista previa por ahora — lo conectaremos a la galería compartida">Preview only for now — we'll connect this to the shared gallery</p>
-        <input type="file" id="fileInput" accept="image/*" multiple hidden>
-      </div>
-      <div class="previews" id="previews"></div>
-    </div>
-  </section>
-
   <!-- ===== RSVP ===== -->
   <section class="section">
     <div class="wrap reveal">
@@ -319,6 +303,10 @@
         <div class="field">
           <label data-es="Nombre">Name</label>
           <input type="text" name="name" required autocomplete="name" placeholder="Your name" data-es-ph="Tu nombre">
+        </div>
+        <div class="field">
+          <label data-es="Nombres de acompañantes">Guest names</label>
+          <textarea name="companions" rows="2" placeholder="Names of anyone joining you (optional)" data-es-ph="Nombres de tus acompañantes (opcional)"></textarea>
         </div>
         <div class="field">
           <label data-es="¿Asistirás?">Will you attend?</label>
@@ -357,6 +345,22 @@
         <p class="formMsg" id="gbMsg" hidden data-es="¡Gracias por tu mensaje!">Thank you for your message!</p>
       </form>
       <div class="msgs" id="msgList"></div>
+    </div>
+  </section>
+
+  <!-- ===== SHARE PHOTOS ===== -->
+  <section class="section">
+    <div class="wrap reveal">
+      <p class="kicker" data-es="Comparte los momentos">Share the moments</p>
+      <h2 class="h2" data-es="Ayúdanos a capturar el día">Help us capture the day</h2>
+      <p class="lede" data-es="¿Tomaste una buena foto? Súbela aquí para revivir juntos cada momento — incluso los que el fotógrafo no vio.">Snapped something beautiful? Add your photos here so we can relive every moment together — the ones the photographer never saw.</p>
+      <div class="upload" id="drop" role="button" tabindex="0" aria-label="Upload photos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        <p class="up-title" data-es="Arrastra tus fotos o toca para subir">Drag your photos here or tap to upload</p>
+        <p class="up-note" data-es="Solo vista previa por ahora — lo conectaremos a la galería compartida">Preview only for now — we'll connect this to the shared gallery</p>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      </div>
+      <div class="previews" id="previews"></div>
     </div>
   </section>
 
@@ -445,6 +449,8 @@
       btn.addEventListener('click', function(e){ e.stopPropagation();
         if(audio.paused){ userOff=false; play(); }
         else { userOff=true; setState('off'); stop(); } });
+      // Stop playback when the tab is hidden / phone locked / browser closed
+      document.addEventListener('visibilitychange', function(){ if(document.hidden){ audio.pause(); setState('idle'); } });
     })();
 
     // Language toggle (EN / ES). Detects browser language on load.
@@ -468,8 +474,8 @@
     // RSVP + Guestbook forms.
     // To go live, paste your endpoint URLs below (Google Apps Script or Formspree).
     (function(){
-      var RSVP_ENDPOINT='';       // <-- paste RSVP endpoint here
-      var GUESTBOOK_ENDPOINT='';  // <-- paste guestbook endpoint here
+      var RSVP_ENDPOINT='https://script.google.com/macros/s/AKfycbwBizvNvGicbKdizgbRydngvbH2ksRcNjUMZpz5oQa8f7YgUgMdPAVWel0Dcc5nUl-i/exec';
+      var GUESTBOOK_ENDPOINT='https://script.google.com/macros/s/AKfycbwBizvNvGicbKdizgbRydngvbH2ksRcNjUMZpz5oQa8f7YgUgMdPAVWel0Dcc5nUl-i/exec';
 
       function send(url, data){
         if(!url) return Promise.resolve();
@@ -486,7 +492,7 @@
       // RSVP submit
       var rsvp=document.getElementById('rsvpForm');
       if(rsvp){ rsvp.addEventListener('submit', function(e){ e.preventDefault();
-        var data={ name:rsvp.elements['name'].value.trim(), attending:(attendInput?attendInput.value:''), guests:rsvp.elements['guests'].value, type:'rsvp', ts:new Date().toISOString() };
+        var data={ name:rsvp.elements['name'].value.trim(), companions:rsvp.elements['companions'].value.trim(), attending:(attendInput?attendInput.value:''), guests:rsvp.elements['guests'].value, type:'rsvp', ts:new Date().toISOString() };
         if(!data.name || !data.attending) return;
         send(RSVP_ENDPOINT, data);
         show(document.getElementById('rsvpMsg')); rsvp.querySelector('.btn').style.display='none'; });
