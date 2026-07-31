@@ -31,6 +31,12 @@
   .sw.is-active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent); }
   .sw:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
+  /* ===== Language toggle ===== */
+  .lang{ position:fixed; z-index:21; top:14px; right:14px; display:flex; align-items:center; gap:2px; padding:5px; border-radius:999px; background:color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); box-shadow:0 6px 20px rgba(0,0,0,.14); }
+  .lang button{ font-family:"Jost",sans-serif; font-weight:500; font-size:10px; letter-spacing:.08em; color:var(--text-soft); background:none; border:0; cursor:pointer; padding:6px 9px; border-radius:999px; transition:color .2s ease, background-color .2s ease; }
+  .lang button.is-active{ color:var(--bg); background:var(--accent); }
+  .lang button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
   /* ===== Sound toggle ===== */
   .sound{ position:fixed; z-index:21; right:16px; bottom:16px; width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; gap:3px; padding:0; cursor:pointer; background:color-mix(in srgb, var(--bg) 80%, transparent); border:1px solid color-mix(in srgb, var(--accent) 24%, transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:0 6px 20px rgba(0,0,0,.14); transition:background-color .2s ease, opacity .2s ease; }
   .sound .bar{ width:3px; height:8px; background:var(--accent); border-radius:2px; }
@@ -55,18 +61,18 @@
   @keyframes draw{ to{ stroke-dashoffset:0; } }
 
   .content{ position:relative; z-index:4; text-align:center; width:100%; padding:0 clamp(14px,4vw,40px); }
-  .eyebrow{ font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.4em; text-transform:uppercase; font-size:clamp(9px,2.4vw,11px); color:var(--text-soft); margin-bottom:clamp(14px,3vw,24px); padding-left:.4em; }
+  .eyebrow{ font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.4em; text-transform:uppercase; font-size:clamp(9px,2.4vw,11px); color:var(--text-soft); margin-bottom:clamp(14px,3vw,24px); }
   .name{ display:block; font-family:"Pinyon Script", cursive; font-weight:400; line-height:.92; font-size:clamp(52px,15vw,116px); color:var(--text); }
-  .amp{ display:block; font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.36em; text-transform:uppercase; color:var(--text-soft); font-size:clamp(10px,2.4vw,13px); margin:clamp(4px,1.4vw,10px) 0; padding-left:.36em; }
+  .amp{ display:block; font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.36em; text-transform:uppercase; color:var(--text-soft); font-size:clamp(10px,2.4vw,13px); margin:clamp(4px,1.4vw,10px) 0; }
   .divider{ display:flex; align-items:center; justify-content:center; gap:14px; margin:clamp(18px,4vw,28px) 0 clamp(14px,3vw,22px); color:var(--accent); }
   .divider .line{ height:1px; width:clamp(30px,11vw,64px); background:linear-gradient(90deg,transparent,var(--accent)); }
   .divider .line.r{ background:linear-gradient(90deg,var(--accent),transparent); }
   .divider .dot{ color:var(--accent2); font-size:11px; }
-  .date{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.32em; text-transform:uppercase; font-size:clamp(10px,2.9vw,14px); color:var(--text); padding-left:.32em; }
-  .place{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.2em; text-transform:uppercase; font-size:clamp(9px,2.2vw,11px); color:var(--text-soft); margin-top:11px; padding-left:.2em; }
+  .date{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.32em; text-transform:uppercase; font-size:clamp(10px,2.9vw,14px); color:var(--text); }
+  .place{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.2em; text-transform:uppercase; font-size:clamp(9px,2.2vw,11px); color:var(--text-soft); margin-top:11px; }
 
   .scroll{ position:absolute; z-index:4; bottom:clamp(16px,4vh,30px); left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-soft); }
-  .scroll span{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.3em; text-transform:uppercase; font-size:9px; padding-left:.3em; }
+  .scroll span{ font-family:"Jost",sans-serif; font-weight:300; letter-spacing:.3em; text-transform:uppercase; font-size:9px; }
   .scroll .chev{ width:13px; height:13px; border-right:1px solid var(--accent); border-bottom:1px solid var(--accent); transform:rotate(45deg); animation:bob 2.2s ease-in-out infinite; }
   @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(45deg); opacity:.45;} 50%{ transform:translateY(6px) rotate(45deg); opacity:1;} }
 
@@ -162,6 +168,11 @@
     <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
   </button>
 
+  <div class="lang" role="group" aria-label="Language / Idioma">
+    <button data-lang="en">EN</button>
+    <button data-lang="es">ES</button>
+  </div>
+
   <div class="palette" role="group" aria-label="Choose a color palette">
     <span class="lbl" id="pName">Ivory</span>
     <div class="swatches">
@@ -177,28 +188,28 @@
         <path d="M 40 700 L 40 250 Q 40 40 250 40 Q 460 40 460 250 L 460 700" />
       </svg>
       <div class="content">
-        <p class="eyebrow rise d1">We're getting married</p>
+        <p class="eyebrow rise d1" data-es="Nos casamos">We're getting married</p>
         <span class="name rise d2">Anthony</span>
-        <span class="amp rise d3">and</span>
+        <span class="amp rise d3" data-es="y">and</span>
         <span class="name rise d4">Lily</span>
         <div class="divider rise d5"><span class="line"></span><span class="dot">&#10022;</span><span class="line r"></span></div>
-        <p class="date rise d6">Sunday 21 &middot; March &middot; 2027</p>
+        <p class="date rise d6" data-es="Domingo 21 &middot; Marzo &middot; 2027">Sunday 21 &middot; March &middot; 2027</p>
         <p class="place rise d7">Austin &middot; Texas</p>
       </div>
     </div>
-    <div class="scroll rise d8"><span>Scroll</span><i class="chev"></i></div>
+    <div class="scroll rise d8"><span data-es="Desliza">Scroll</span><i class="chev"></i></div>
   </section>
 
   <!-- ===== COUNTDOWN ===== -->
   <section class="section">
     <div class="wrap reveal">
-      <p class="kicker">Counting down</p>
-      <h2 class="h2">The big day is almost here</h2>
+      <p class="kicker" data-es="Cuenta regresiva">Counting down</p>
+      <h2 class="h2" data-es="Falta poco para el gran día">The big day is almost here</h2>
       <div class="count" id="count">
-        <div class="unit"><div class="num" id="cD">—</div><div class="cap">Days</div></div>
-        <div class="unit"><div class="num" id="cH">—</div><div class="cap">Hours</div></div>
-        <div class="unit"><div class="num" id="cM">—</div><div class="cap">Minutes</div></div>
-        <div class="unit"><div class="num" id="cS">—</div><div class="cap">Seconds</div></div>
+        <div class="unit"><div class="num" id="cD">—</div><div class="cap" data-es="Días">Days</div></div>
+        <div class="unit"><div class="num" id="cH">—</div><div class="cap" data-es="Horas">Hours</div></div>
+        <div class="unit"><div class="num" id="cM">—</div><div class="cap" data-es="Minutos">Minutes</div></div>
+        <div class="unit"><div class="num" id="cS">—</div><div class="cap" data-es="Segundos">Seconds</div></div>
       </div>
     </div>
   </section>
@@ -206,13 +217,13 @@
   <!-- ===== OUR STORY ===== -->
   <section class="section">
     <div class="wrap reveal">
-      <p class="kicker">Our story</p>
-      <h2 class="h2">How we got here</h2>
-      <p class="lede">This is where your story goes — how you two met, the moment everything changed, and why you want to share this day with the people you love. (Placeholder text — we'll write it together.)</p>
+      <p class="kicker" data-es="Nuestra historia">Our story</p>
+      <h2 class="h2" data-es="Cómo llegamos hasta aquí">How we got here</h2>
+      <p class="lede" data-es="Aquí va la historia de ustedes — cómo se conocieron, el momento en que todo cambió, y por qué quieren compartir este día con la gente que aman. (Texto de ejemplo — lo escribimos juntos.)">This is where your story goes — how you two met, the moment everything changed, and why you want to share this day with the people you love. (Placeholder text — we'll write it together.)</p>
       <div class="story">
-        <div class="beat"><div class="yr">2019</div><div class="bt">We met</div><div class="bd">The day our paths first crossed.</div></div>
-        <div class="beat"><div class="yr">2024</div><div class="bt">The proposal</div><div class="bd">The "yes" that started all of this.</div></div>
-        <div class="beat"><div class="yr">2027</div><div class="bt">The big day</div><div class="bd">And now, forever.</div></div>
+        <div class="beat"><div class="yr">2019</div><div class="bt" data-es="Nos conocimos">We met</div><div class="bd" data-es="El día que nuestros caminos se cruzaron.">The day our paths first crossed.</div></div>
+        <div class="beat"><div class="yr">2024</div><div class="bt" data-es="La propuesta">The proposal</div><div class="bd" data-es='El "sí" que empezó todo esto.'>The "yes" that started all of this.</div></div>
+        <div class="beat"><div class="yr">2027</div><div class="bt" data-es="El gran día">The big day</div><div class="bd" data-es="Y ahora, para siempre.">And now, forever.</div></div>
       </div>
     </div>
   </section>
@@ -220,9 +231,9 @@
   <!-- ===== THE VENUE (video gallery) ===== -->
   <section class="section">
     <div class="wrap reveal">
-      <p class="kicker">The venue</p>
-      <h2 class="h2">A chapel in the Hill Country</h2>
-      <p class="lede">A glimpse of where we'll say "I do" — a white chapel among the Texas hills, under an open sky. (Venue name and words to come.)</p>
+      <p class="kicker" data-es="El lugar">The venue</p>
+      <h2 class="h2" data-es="Una capilla en el Hill Country">A chapel in the Hill Country</h2>
+      <p class="lede" data-es='Un vistazo de donde diremos "sí, acepto" — una capilla blanca entre las colinas de Texas, bajo el cielo abierto. (Nombre del lugar y texto por venir.)'>A glimpse of where we'll say "I do" — a white chapel among the Texas hills, under an open sky. (Venue name and words to come.)</p>
       <div class="galleryWrap">
         <button class="gnav prev" id="gPrev" aria-label="Previous video"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
         <div class="gallery" id="gallery">
@@ -239,19 +250,19 @@
   <!-- ===== DETAILS + MAP (ink, like the invitation's black side) ===== -->
   <section class="section ink">
     <div class="wrap reveal">
-      <p class="kicker">The details</p>
-      <h2 class="h2">The big day</h2>
+      <p class="kicker" data-es="Los detalles">The details</p>
+      <h2 class="h2" data-es="El gran día">The big day</h2>
       <div class="rule"><span class="l"></span><span class="m">&#10022;</span><span class="l r"></span></div>
       <div class="cards">
         <div class="card">
-          <p class="ct">The ceremony</p>
+          <p class="ct" data-es="La ceremonia">The ceremony</p>
           <p class="cbig">1:00 PM</p>
           <p class="cd">644 Ghost Dancer<br>Fischer, TX 78623</p>
         </div>
         <div class="card">
-          <p class="ct">The celebration</p>
+          <p class="ct" data-es="La celebración">The celebration</p>
           <p class="cbig">4:00 PM</p>
-          <p class="cd">Reception to follow<br>at the same venue</p>
+          <p class="cd" data-es="Recepción a continuación<br>en el mismo lugar">Reception to follow<br>at the same venue</p>
         </div>
       </div>
       <div class="mapwrap">
@@ -264,13 +275,13 @@
   <!-- ===== SHARE PHOTOS ===== -->
   <section class="section">
     <div class="wrap reveal">
-      <p class="kicker">Share the moments</p>
-      <h2 class="h2">Help us capture the day</h2>
-      <p class="lede">Snapped something beautiful? Add your photos here so we can relive every moment together — the ones the photographer never saw.</p>
+      <p class="kicker" data-es="Comparte los momentos">Share the moments</p>
+      <h2 class="h2" data-es="Ayúdanos a capturar el día">Help us capture the day</h2>
+      <p class="lede" data-es="¿Tomaste una buena foto? Súbela aquí para revivir juntos cada momento — incluso los que el fotógrafo no vio.">Snapped something beautiful? Add your photos here so we can relive every moment together — the ones the photographer never saw.</p>
       <div class="upload" id="drop" role="button" tabindex="0" aria-label="Upload photos">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-        <p class="up-title">Drag your photos here or tap to upload</p>
-        <p class="up-note">Preview only for now — we'll connect this to the shared gallery</p>
+        <p class="up-title" data-es="Arrastra tus fotos o toca para subir">Drag your photos here or tap to upload</p>
+        <p class="up-note" data-es="Solo vista previa por ahora — lo conectaremos a la galería compartida">Preview only for now — we'll connect this to the shared gallery</p>
         <input type="file" id="fileInput" accept="image/*" multiple hidden>
       </div>
       <div class="previews" id="previews"></div>
@@ -280,10 +291,10 @@
   <!-- ===== RSVP ===== -->
   <section class="section">
     <div class="wrap reveal">
-      <p class="kicker">RSVP</p>
-      <h2 class="h2">We'd love to celebrate with you</h2>
-      <p class="lede">Please let us know by February 1, 2027 so we can save your seat.</p>
-      <a class="cta" href="#">Confirm attendance</a>
+      <p class="kicker" data-es="Confirmación">RSVP</p>
+      <h2 class="h2" data-es="Nos encantaría celebrar contigo">We'd love to celebrate with you</h2>
+      <p class="lede" data-es="Por favor confírmanos antes del 1 de febrero de 2027 para reservar tu lugar.">Please let us know by February 1, 2027 so we can save your seat.</p>
+      <a class="cta" href="#" data-es="Confirmar asistencia">Confirm attendance</a>
     </div>
   </section>
 
@@ -372,6 +383,21 @@
       btn.addEventListener('click', function(e){ e.stopPropagation();
         if(audio.paused){ userOff=false; play(); }
         else { userOff=true; setState('off'); stop(); } });
+    })();
+
+    // Language toggle (EN / ES). Detects browser language on load.
+    (function(){
+      var nodes=document.querySelectorAll('[data-es]');
+      nodes.forEach(function(el){ el.dataset.en=el.innerHTML; });
+      var btns=document.querySelectorAll('.lang button');
+      function setLang(lang){
+        nodes.forEach(function(el){ var v=(lang==='es')?el.dataset.es:el.dataset.en; if(v!=null) el.innerHTML=v; });
+        document.documentElement.setAttribute('lang', lang);
+        btns.forEach(function(b){ b.classList.toggle('is-active', b.getAttribute('data-lang')===lang); });
+      }
+      btns.forEach(function(b){ b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); }); });
+      var initial=((navigator.language||'en').toLowerCase().indexOf('es')===0)?'es':'en';
+      setLang(initial);
     })();
   </script>
 </body>
