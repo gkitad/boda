@@ -158,6 +158,9 @@
   .msg{ border-left:2px solid color-mix(in srgb, var(--accent) 40%, transparent); padding:2px 0 2px 16px; }
   .msg .mtext{ font-size:18px; line-height:1.55; color:var(--text); font-style:italic; }
   .msg .mname{ font-family:"Jost",sans-serif; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-soft); margin-top:8px; }
+  .msg.more-hidden{ display:none; }
+  .gbmore{ display:block; margin:24px auto 0; font-family:"Jost",sans-serif; font-weight:400; letter-spacing:.2em; text-transform:uppercase; font-size:10px; color:var(--accent); background:none; border:0; border-bottom:1px solid color-mix(in srgb, var(--accent) 40%, transparent); padding:7px 3px; cursor:pointer; transition:opacity .2s ease; }
+  .gbmore:hover{ opacity:.65; }
 
   .foot{ text-align:center; padding:clamp(56px,9vw,96px) 22px clamp(40px,6vw,64px); }
   .foot .fn{ font-family:"Pinyon Script", cursive; font-weight:400; font-size:clamp(38px,8vw,64px); color:var(--text); line-height:1; }
@@ -345,6 +348,7 @@
         <p class="formMsg" id="gbMsg" hidden data-es="¡Gracias por tu mensaje!">Thank you for your message!</p>
       </form>
       <div class="msgs" id="msgList"></div>
+      <button class="gbmore" id="gbMore" hidden data-es="Ver más">See more</button>
     </div>
   </section>
 
@@ -512,17 +516,24 @@
       }
 
       // Load & display all guestbook messages from the sheet (JSONP avoids CORS)
+      var moreBtn=document.getElementById('gbMore');
       function renderMessages(data){
         if(!list) return; list.innerHTML='';
+        if(moreBtn) moreBtn.hidden=true;
         if(!data || !data.length) return;
-        data.slice().reverse().forEach(function(m){
+        var arr=data.slice().reverse();
+        arr.forEach(function(m, i){
           if(!m || !m.message) return;
-          var d=document.createElement('div'); d.className='msg';
+          var d=document.createElement('div'); d.className='msg'+(i>=3?' more-hidden':'');
           var p=document.createElement('p'); p.className='mtext'; p.textContent='\u201C'+String(m.message)+'\u201D';
           var n=document.createElement('p'); n.className='mname'; n.textContent='\u2014 '+String(m.name||'');
           d.appendChild(p); d.appendChild(n); list.appendChild(d);
         });
+        if(moreBtn && arr.length>3) moreBtn.hidden=false;
       }
+      if(moreBtn){ moreBtn.addEventListener('click', function(){
+        list.querySelectorAll('.msg.more-hidden').forEach(function(el){ el.classList.remove('more-hidden'); });
+        moreBtn.hidden=true; }); }
       function loadGuestbook(){
         if(!GUESTBOOK_ENDPOINT) return;
         var cb='__gb_'+Date.now(); var sc=document.createElement('script');
